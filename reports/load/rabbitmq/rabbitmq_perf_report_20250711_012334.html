@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет RabbitMQ PerfTest</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f8f9fa; }
+        h1 { color: #2c3e50; }
+        table { border-collapse: collapse; width: 70%; margin: 20px 0; background: #fff; }
+        th, td { border: 1px solid #ccc; padding: 10px 16px; text-align: left; }
+        th { background: #e9ecef; }
+        .desc { margin-top: 30px; color: #555; }
+        .warn { color: #b30000; font-weight: bold; }
+        .ok { color: #006600; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Результаты RabbitMQ PerfTest</h1>
+    <table>
+        <tr><th>Параметр</th><th>Значение</th></tr>
+        <tr><td>Продюсеров</td><td>20</td></tr>
+        <tr><td>Консьюмеров</td><td>20</td></tr>
+        <tr><td>Всего отправлено сообщений</td><td>495623</td></tr>
+        <tr><td>Всего получено сообщений</td><td>479035</td></tr>
+        <tr><td>Потери сообщений</td><td class="warn">Потеряно 16588 сообщений!</td></tr>
+        <tr><td>Средний TPS (publish)</td><td>26085 msg/s</td></tr>
+        <tr><td>Максимальный TPS (publish)</td><td>45699 msg/s</td></tr>
+        <tr><td>Средний TPS (consume)</td><td>25212 msg/s</td></tr>
+        <tr><td>Максимальный TPS (consume)</td><td>29615 msg/s</td></tr>
+        <tr><td>Медианная задержка (мкс)</td><td>825215</td></tr>
+        <tr><td>95-й перцентиль задержки (мкс)</td><td>1591808</td></tr>
+    </table>
+    <div class="desc">
+        <h2>Как читать этот отчет</h2>
+        <ul>
+            <li><b>TPS (publish/consume)</b> — сколько сообщений в секунду отправлялось/получалось. Чем выше, тем лучше.</li>
+            <li><b>Задержка</b> — время доставки сообщения от продюсера к консьюмеру. Чем меньше, тем лучше. Микросекунды (мкс): 1000 мкс = 1 мс.</li>
+            <li><b>Потери сообщений</b> — если получено меньше, чем отправлено, это плохо (сообщения теряются!).</li>
+        </ul>
+        <h2>Советы по анализу</h2>
+        <ul>
+            <li><span class="ok">Нет потерь сообщений</span> — система работает корректно.</li>
+            <li><span class="warn">Есть потери сообщений</span> — проверьте настройки брокера, очереди, нагрузку на сеть и память.</li>
+            <li>Если задержка &gt; 1 000 000 мкс (1 сек) — это очень много, стоит оптимизировать систему.</li>
+            <li>Сравнивайте TPS и задержки при разном количестве продюсеров/консьюмеров для поиска оптимума.</li>
+        </ul>
+    </div>
+    <h2>Динамика TPS и задержки по времени</h2>
+    <canvas id="tpsChart" width="800" height="300"></canvas>
+    <script>
+    const labels = ["1.0s", "2.0s", "3.0s", "4.0s", "5.0s", "6.0s", "7.0s", "8.0s", "9.0s", "10.0s", "11.0s", "12.0s", "13.0s", "14.0s", "15.0s", "16.0s", "17.0s", "18.0s", "19.0s"];
+    const sent = [45699, 26052, 17058, 17822, 21327, 28082, 39910, 23285, 18853, 32071, 33611, 24419, 22764, 31826, 21946, 22534, 23377, 18101, 26886];
+    const received = [16317, 19587, 23750, 23828, 26135, 29615, 26712, 28135, 28880, 27609, 28001, 27760, 27836, 24600, 23641, 22566, 22553, 23286, 28224];
+    const latency = [210620, 808279, 1464106, 1665273, 1156034, 586145, 570295, 1079221, 1017679, 630237, 540029, 1000991, 918262, 605844, 711221, 1161485, 1110182, 952310, 544207];
+    const median = [210620, 808279, 1464106, 1665273, 1156034, 586145, 570295, 1079221, 1017679, 630237, 540029, 1000991, 918262, 605844, 711221, 1161485, 1110182, 952310, 544207];
+    const p95 = [464997, 1117369, 1746387, 2029136, 1604309, 1056701, 1219056, 1433160, 1470172, 1177171, 1187728, 1394021, 1410515, 1256570, 1376135, 1699932, 1540803, 1547500, 1625723];
+    const data = {
+        labels: labels,
+        datasets: [
+            { label: 'Sent msg/s', data: sent, borderColor: 'blue', fill: false, yAxisID: 'y' },
+            { label: 'Received msg/s', data: received, borderColor: 'green', fill: false, yAxisID: 'y' },
+            { label: 'Median latency (мкс)', data: median, borderColor: 'orange', fill: false, yAxisID: 'y1' },
+            { label: '95th latency (мкс)', data: p95, borderColor: 'red', fill: false, yAxisID: 'y1' }
+        ]
+    };
+    const config = {{
+        type: 'line',
+        data: data,
+        options: {{
+            interaction: {{ mode: 'index', intersect: false }},
+            stacked: false,
+            plugins: {{ legend: {{ position: 'top' }} }},
+            scales: {{
+                y: {{ type: 'linear', display: true, position: 'left', title: {{ display: true, text: 'msg/s' }} }},
+                y1: {{ type: 'linear', display: true, position: 'right', title: {{ display: true, text: 'latency (мкс)' }}, grid: {{ drawOnChartArea: false }} }}
+            }}
+        }}
+    }};
+    new Chart(document.getElementById('tpsChart'), config);
+    </script>
+</body>
+</html>

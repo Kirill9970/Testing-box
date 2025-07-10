@@ -1,0 +1,15 @@
+Инициализация базы для pgbench...
+Запуск pgbench...
+pgbench (15.13 (Debian 15.13-1.pgdg120+1), server 15.2)
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 100
+query mode: simple
+number of clients: 20
+number of threads: 1
+maximum number of tries: 1
+duration: 60 s
+number of transactions actually processed: 349569
+number of failed transactions: 0 (0.000%)
+latency average = 3.427 ms
+initial connection time = 118.674 ms
+tps = 5836.119161 (without initial connection time)

@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет RabbitMQ PerfTest</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f8f9fa; }
+        h1 { color: #2c3e50; }
+        table { border-collapse: collapse; width: 60%; margin: 20px 0; background: #fff; }
+        th, td { border: 1px solid #ccc; padding: 10px 16px; text-align: left; }
+        th { background: #e9ecef; }
+        .desc { margin-top: 30px; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Результаты RabbitMQ PerfTest</h1>
+    <table>
+        <tr><th>Параметр</th><th>Значение</th></tr>
+        <tr><td>Средний TPS (publish)</td><td>16372 msg/s</td></tr>
+        <tr><td>Средний TPS (consume)</td><td>16417 msg/s</td></tr>
+        <tr><td>Минимальная задержка (мкс)</td><td>2180</td></tr>
+        <tr><td>Медианная задержка (мкс)</td><td>1032113</td></tr>
+        <tr><td>75-й перцентиль задержки (мкс)</td><td>1548238</td></tr>
+        <tr><td>95-й перцентиль задержки (мкс)</td><td>2188903</td></tr>
+        <tr><td>99-й перцентиль задержки (мкс)</td><td>2411801</td></tr>
+    </table>
+    <div class="desc">
+        <h2>Описание</h2>
+        <ul>
+            <li><b>TPS (publish/consume)</b> — среднее количество сообщений в секунду при отправке/получении.</li>
+            <li><b>Задержка</b> — время доставки сообщения от продюсера к консьюмеру (мкс = микросекунды).</li>
+        </ul>
+    </div>
+</body>
+</html>
